@@ -106,4 +106,4 @@ def register_user(user_data: UserCreateIndividual, db: Session = Depends(get_db)
     # Use user_data.email, user_data.first_name, etc.
     return {"message": f"User {user_data.email} registered (DB status will show if successful)"}
 
-# Add all your other routes (login, scan, get_report, etc.) here...
+# Add all your other routes (login, scan, get_report, etc.) here...logging

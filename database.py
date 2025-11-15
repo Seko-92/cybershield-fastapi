@@ -2,39 +2,34 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from typing import Generator
-import os # Necessary to read environment variables
+import os # Crucial for reading the environment variable
 
-# 1. PostgreSQL Connection URL
-# CRITICAL FIX: Use the environment variable set in the Railway dashboard.
-# Railway automatically populates the DATABASE_URL variable with the correct
-# internal connection string (e.g., postgresql://postgres:***@postgres.railway.internal:5432/railway).
-# It falls back to None if the variable is not set.
+# 1. Get the Connection URL from Environment Variables
+# This is the string set in the Railway dashboard (e.g., postgresql://postgres:***@postgres.railway.internal:5432/railway)
 SQLALCHEMY_DATABASE_URL = os.getenv('DATABASE_URL')
 
-# Optional: Add a fallback for local testing if you don't use environment vars locally
-# if not SQLALCHEMY_DATABASE_URL:
-#     SQLALCHEMY_DATABASE_URL = "sqlite:///./local_test.db"
-
 # 2. Engine Creation for PostgreSQL
-# We add pool_pre_ping=True for stability on cloud connections.
+# We check if the URL is set before trying to create the engine.
 if SQLALCHEMY_DATABASE_URL:
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
+        # Recommended for cloud connections to check health before use
         pool_pre_ping=True
     )
 else:
-    # If the URL is missing (e.g., during testing), raise an error
-    raise ValueError("DATABASE_URL environment variable is not set!")
+    # If the URL is missing, raise a clear error immediately
+    raise ValueError("DATABASE_URL environment variable is not set! Check Railway variables.")
 
-
+# 3. Session and Base Configuration
+# Standard configuration for SQLAlchemy
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
-# 3. Database Session Dependency
+# 4. Database Session Dependency
 def get_db() -> Generator:
     """
-    Dependency function that yields a new database session and closes it afterwards.
+    Dependency function that yields a new database session for FastAPI endpoints.
     """
     db = SessionLocal()
     try:
