@@ -38,9 +38,11 @@ function goToDashboard() {
 }
 
 function handleSignOut() {
+    // NOTE: Using a custom alert/modal instead of browser alert() is recommended for a better user experience.
+    // Replace with custom modal in a full production app.
+    alert('You have been signed out.');
     sessionStorage.removeItem('currentUserId');
     sessionStorage.removeItem('currentUserEmail');
-    alert('You have been signed out.');
     showView('home-view');
 }
 
@@ -50,7 +52,6 @@ function handleSignOut() {
 async function handleRegistration(event) {
     event.preventDefault();
 
-    // FIX 2: Correctly reference the form using event.target
     const form = event.target;
 
     const scope = form.querySelector('input[name="scope"]:checked').value;
@@ -74,7 +75,6 @@ async function handleRegistration(event) {
     }
 
     try {
-        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: {
@@ -106,7 +106,6 @@ async function handleLogin(event) {
     const email = document.getElementById('login-email').value;
 
     try {
-        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
@@ -157,7 +156,6 @@ async function handleUrlScan(event) {
     resultDiv.innerHTML = '<p class="text-warning">Scanning... This may take a moment.</p>';
 
     try {
-        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/scan`, {
             method: 'POST',
             headers: {
@@ -249,32 +247,41 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('nav-sign-up').addEventListener('click', () => showView('registration-view'));
     document.getElementById('nav-sign-in').addEventListener('click', () => showView('login-view'));
     document.getElementById('nav-sign-out').addEventListener('click', handleSignOut);
-    document.getElementById('nav-dashboard').addEventListener('click', goToDashboard);
 
     // Use the function on the form submit events
     document.getElementById('registration-form').addEventListener('submit', handleRegistration);
     document.getElementById('login-form').addEventListener('submit', handleLogin);
     document.getElementById('url-scan-form').addEventListener('submit', handleUrlScan);
 
-    // 3. Logic to show/hide Individual/Enterprise fields
+    // 3. Logic to show/hide Individual/Enterprise fields and manage selection class
     const scopeRadios = document.querySelectorAll('input[name="scope"]');
     const individualFields = document.getElementById('individual-fields');
     const enterpriseFields = document.getElementById('enterprise-fields');
+    const individualCard = document.getElementById('scope-card-individual');
+    const enterpriseCard = document.getElementById('scope-card-enterprise');
+
+    const updateScopeView = (scope) => {
+        if (scope === 'individual') {
+            individualFields.style.display = 'block';
+            enterpriseFields.style.display = 'none';
+            individualCard.classList.add('selected');
+            enterpriseCard.classList.remove('selected');
+        } else {
+            individualFields.style.display = 'none';
+            enterpriseFields.style.display = 'block';
+            individualCard.classList.remove('selected');
+            enterpriseCard.classList.add('selected');
+        }
+    };
 
     scopeRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
-            if (e.target.value === 'individual') {
-                individualFields.style.display = 'block';
-                enterpriseFields.style.display = 'none';
-            } else {
-                individualFields.style.display = 'none';
-                enterpriseFields.style.display = 'block';
-            }
+            updateScopeView(e.target.value);
         });
     });
-    // Ensure correct initial state
+
+    // Ensure correct initial state on load, since 'individual' is checked by default in HTML
     if (document.getElementById('scope-individual').checked) {
-        individualFields.style.display = 'block';
-        enterpriseFields.style.display = 'none';
+        updateScopeView('individual');
     }
 });

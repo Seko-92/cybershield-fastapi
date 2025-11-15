@@ -15,54 +15,54 @@
         </div>
 
         <div class="content">
-            <div id="landingPage" class="app-view active">
+
+            <!-- Home View (Landing Page) -->
+            <div id="home-view" class="view" style="display: block;">
                 <div style="text-align: center; padding: 60px 20px;">
                     <div style="font-size: 100px; margin-bottom: 20px;">🛡️</div>
-                    <h1 style="font-size: 3em; color: #667eea; margin-bottom: 10px;">CyberShield</h1>
-                    <p style="font-size: 1.2em; color: #666; margin-bottom: 50px;">Advanced Security Analysis Platform</p>
+                    <h1 style="font-size: 3em; color: var(--color-accent); margin-bottom: 10px;">CyberShield</h1>
+                    <p style="font-size: 1.2em; color: var(--color-text-secondary); margin-bottom: 50px;">Advanced Security Analysis Platform</p>
 
                     <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
-                        <button onclick="showView('register-view')" style="width: 200px;">Sign Up</button>
-                        <button onclick="showView('login-view')" style="width: 200px; background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);">Sign In</button>
-                    </div>
-
-                    <div style="margin-top: 40px;">
-                        <button onclick="showView('admin-login-view')" style="background: #6c757d; width: auto; padding: 10px 30px;">Admin Access</button>
+                        <!-- Buttons rely on DOMContentLoaded listener in script.js -->
+                        <button id="nav-sign-up" style="width: 200px;">Sign Up</button>
+                        <button id="nav-sign-in" style="width: 200px; background: var(--color-accent); color: var(--color-primary-dark);">Sign In</button>
                     </div>
                 </div>
             </div>
 
-            <div id="register-view" class="app-view">
-                <button onclick="showView('landingPage')" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back</button>
+            <!-- Registration View -->
+            <div id="registration-view" class="view">
+                <button onclick="showView('home-view')" class="back-btn">← Back</button>
                 <h2 style="text-align: center; margin-bottom: 30px;">Create Your Account</h2>
 
-                <form id="register-form">
+                <form id="registration-form">
                     <div class="scope-selector">
-                        <div class="scope-card" data-scope="individual">
+                        <label class="scope-card selected" for="scope-individual" id="scope-card-individual">
                             <h3>👤 Individual</h3>
                             <input type="radio" name="scope" id="scope-individual" value="individual" checked required style="display: none;">
                             <p>Personal security scanning</p>
-                        </div>
-                        <div class="scope-card" data-scope="enterprise">
+                        </label>
+                        <label class="scope-card" for="scope-enterprise" id="scope-card-enterprise">
                             <h3>🏢 Enterprise</h3>
                             <input type="radio" name="scope" id="scope-enterprise" value="enterprise" required style="display: none;">
                             <p>Business & organization protection</p>
-                        </div>
+                        </label>
                     </div>
 
                     <div id="individual-fields" style="display: block;">
                         <h3>Individual Registration</h3>
                         <div class="form-group">
                             <label>First Name</label>
-                            <input type="text" id="reg-first-name" name="first_name_i" required>
+                            <input type="text" id="reg-first-name" name="first_name" required>
                         </div>
                         <div class="form-group">
                             <label>Last Name</label>
-                            <input type="text" id="reg-last-name" name="last_name_i" required>
+                            <input type="text" id="reg-last-name" name="last_name" required>
                         </div>
                         <div class="form-group">
                             <label>Mobile Number</label>
-                            <input type="tel" id="reg-mobile" name="mobile_i" required>
+                            <input type="tel" id="reg-mobile" name="mobile" required>
                         </div>
                     </div>
 
@@ -70,29 +70,30 @@
                         <h3>Enterprise Registration</h3>
                         <div class="form-group">
                             <label>Company/Institution Name</label>
-                            <input type="text" id="reg-company-name" name="company_name_e" required>
+                            <input type="text" id="reg-company-name" name="company_name" required>
                         </div>
                         <div class="form-group">
                             <label>Company Website</label>
-                            <input type="url" id="reg-company-website" name="company_website_e" required>
+                            <input type="url" id="reg-company-website" name="company_website" required>
                         </div>
                         <div class="form-group">
                             <label>Phone Number</label>
-                            <input type="tel" id="reg-phone" name="phone_e" required>
+                            <input type="tel" id="reg-phone" name="phone" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Email Address</label>
+                        <label>Email Address (used for Sign In)</label>
                         <input type="email" id="reg-email" name="email" required>
                     </div>
 
-                    <button type="submit">Register & Continue</button>
+                    <button type="submit">Register & Sign In</button>
                 </form>
             </div>
 
-            <div id="login-view" class="app-view">
-                <button onclick="showView('landingPage')" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back</button>
+            <!-- Login View -->
+            <div id="login-view" class="view">
+                <button onclick="showView('home-view')" class="back-btn">← Back</button>
                 <h2 style="text-align: center; margin-bottom: 30px;">Sign In to Your Account</h2>
 
                 <form id="login-form">
@@ -100,188 +101,62 @@
                         <label>Email Address</label>
                         <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
                     </div>
+                    <!-- Password input kept here, even if not used by FastAPI mock, for UI completeness -->
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="login-password" name="password" value="password" required disabled style="background-color: #555; color: #bbb;">
+                        <p class="text-muted" style="font-size: 0.8em; margin-top: 5px;">*Password is disabled for this FastAPI demo.</p>
+                    </div>
                     <button type="submit">Sign In</button>
                 </form>
 
                 <div style="text-align: center; margin-top: 20px;">
-                    <p style="color: #666;">Don't have an account? <a href="#" id="signin-to-register-link" style="color: #667eea; font-weight: 600;">Sign Up</a></p>
+                    <p style="color: var(--color-text-secondary);">Don't have an account? <a href="#" onclick="showView('registration-view')" style="color: var(--color-accent); font-weight: 600;">Sign Up</a></p>
                 </div>
             </div>
 
-            <div id="admin-login-view" class="app-view">
-                <button onclick="showView('landingPage')" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back</button>
-                <h2 style="text-align: center; margin-bottom: 30px;">Administrator Access</h2>
-                <form id="admin-login-form">
-                    <div class="form-group">
-                        <label>Admin Key</label>
-                        <input type="password" id="adminPassword" name="adminPassword" required>
-                    </div>
-                    <button type="submit">Access Admin Panel</button>
-                </form>
-            </div>
-
-            <div id="user-dashboard" class="app-view">
-                <div class="user-info">
-                    <p>Logged in as: <span id="user-email-display"></span> (<span id="user-scope-display"></span>)</p>
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-bg-light); padding-bottom: 10px; margin-bottom: 20px;">
+                    <h2>Dashboard</h2>
+                    <button id="nav-sign-out" class="back-btn" style="width: auto;">Logout</button>
                 </div>
 
-                <div id="aiChatSection" style="margin-bottom: 30px;">
-                    <h2 style="text-align: center; margin-bottom: 20px;">🤖 AI Security Assistant</h2>
-                    <p style="text-align: center; color: #666; margin-bottom: 30px;">Ask me anything about cybersecurity threats, best practices, or security analysis</p>
+                <h3 id="welcome-message" style="margin-top: 0; color: var(--color-text-primary); border: none; padding: 0;">Welcome!</h3>
 
-                    <form id="ai-query-form">
-                        <div class="form-group">
-                            <textarea id="aiQueryInput" name="query" rows="4" placeholder="Type your cybersecurity question here... (e.g., What are the latest ransomware threats?)" style="font-size: 16px;" autofocus required></textarea>
-                        </div>
-                        <button type="submit" style="font-size: 18px; padding: 16px;">Ask AI Assistant</button>
-                    </form>
-
-                    <div class="loading" id="aiLoading" style="display: none;"><div class="spinner"></div><p>Consulting AI...</p></div>
-                    <div class="result-box" id="ai-query-result"></div>
-                </div>
-
-                <hr style="border: none; border-top: 2px solid #e0e0e0; margin: 40px 0;">
-
-                <h3 style="text-align: center; margin-bottom: 20px; color: #667eea;">Other Security Tools</h3>
+                <h3 style="text-align: center; margin-top: 40px; margin-bottom: 20px; color: var(--color-accent);">Security Tools</h3>
 
                 <div class="dashboard-grid">
-                    <div class="feature-card" data-target="url-scan-section">
+                    <div class="feature-card" onclick="document.getElementById('url-scan-section').style.display='block';">
                         <h3>🔍 URL Scanner</h3>
                         <p>Scan websites for threats and malicious content</p>
                     </div>
-                    <div class="feature-card" data-target="file-scan-section">
-                        <h3>📁 File Scanner</h3>
-                        <p>Analyze files for malware and viruses</p>
-                    </div>
-                    <div class="feature-card" data-target="email-check-section">
-                        <h3>📧 Email Breach Check</h3>
-                        <p>Check if email appears in data breaches</p>
+                    <div class="feature-card" onclick="alert('Viewing reports is not implemented in this version.');">
+                        <h3>📊 View Reports</h3>
+                        <p>Review your previous security scans</p>
                     </div>
                 </div>
 
-                <div id="url-scan-section" style="display: none;" class="feature-section">
-                    <button onclick="hideFeature()" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back to Dashboard</button>
+                <!-- Expanded URL Scan Section -->
+                <div id="url-scan-section" style="display: block;">
                     <h3>🔍 URL Scanner</h3>
                     <form id="url-scan-form">
                         <div class="form-group">
                             <label>Enter URL to scan</label>
-                            <input type="url" id="urlInput" name="url" placeholder="https://example.com" required>
+                            <input type="url" id="url-input" name="url" placeholder="https://example.com" required>
                         </div>
                         <button type="submit">Scan URL</button>
                     </form>
 
-                    <div class="loading" id="urlLoading" style="display: none;"><div class="spinner"></div><p>Scanning URL...</p></div>
-                    <div class="result-box" id="url-scan-result"></div>
-                </div>
-
-                <div id="file-scan-section" style="display: none;" class="feature-section">
-                    <button onclick="hideFeature()" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back to Dashboard</button>
-                    <h3>📁 File Scanner</h3>
-                    <form id="file-scan-form">
-                        <div class="form-group">
-                            <label>Select file to scan</label>
-                            <input type="file" id="file-upload" name="file" required>
-                        </div>
-                        <button type="submit">Scan File</button>
-                    </form>
-
-                    <div class="loading" id="fileLoading" style="display: none;"><div class="spinner"></div><p>Scanning file...</p></div>
-                    <div class="result-box" id="file-scan-result"></div>
-                </div>
-
-                <div id="email-check-section" style="display: none;" class="feature-section">
-                    <button onclick="hideFeature()" style="background: #6c757d; width: auto; padding: 10px 20px; margin-bottom: 20px;">← Back to Dashboard</button>
-                    <h3>📧 Email Breach Check</h3>
-                    <form id="email-check-form">
-                        <div class="form-group">
-                            <label>Enter email address</label>
-                            <input type="email" id="emailInput" name="email" placeholder="user@example.com" required>
-                        </div>
-                        <button type="submit">Check Email</button>
-                    </form>
-
-                    <div class="loading" id="emailLoading" style="display: none;"><div class="spinner"></div><p>Checking email...</p></div>
-                    <div class="result-box" id="email-check-result"></div>
-                </div>
-
-                <button id="logout-btn" class="logout-btn">Logout</button>
-            </div>
-
-            <div id="admin-view" class="app-view">
-                <h2>Administrator Panel</h2>
-
-                <div class="nav-bar">
-                    <button class="nav-btn" onclick="showAdminSection('users')">View Users</button>
-                    <button class="nav-btn" onclick="showAdminSection('reports')">View Reports</button>
-                </div>
-
-                <div id="adminUsers" class="admin-section" style="display: none;">
-                    <h3>Registered Users</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Email</th>
-                                    <th>Scope</th>
-                                    <th>Name/Company</th>
-                                    <th>Created At</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-user-list"></tbody>
-                        </table>
+                    <div class="result-box" id="url-scan-result" style="margin-top: 30px;">
+                        <p class="text-muted">Scan results will appear here after submission.</p>
                     </div>
                 </div>
-
-                <div id="adminReports" class="admin-section" style="display: none;">
-                    <h3>Scan Reports</h3>
-                    <div class="table-container">
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>User ID</th>
-                                    <th>Type</th>
-                                    <th>Target</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-report-list"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <button id="admin-logout-btn" class="logout-btn" onclick="showView('landingPage')">Logout</button>
             </div>
+
         </div>
     </div>
 
-
-
-<div id="custom-confirm-modal" class="custom-modal">
-    <div class="modal-content">
-        <h3 id="custom-confirm-title"></h3>
-        <p id="custom-confirm-message"></p>
-        <div class="modal-actions">
-            <button id="custom-confirm-no" class="cancel-btn">Cancel</button>
-            <button id="custom-confirm-yes" class="delete-user-btn">Confirm Delete</button>
-        </div>
-    </div>
-</div>
-
-<div id="custom-alert-modal" class="custom-modal">
-    <div class="modal-content modal-alert">
-        <i id="alert-modal-icon" class="modal-icon fas"></i>
-        <h3 id="alert-modal-title"></h3>
-        <p id="alert-modal-message"></p>
-        <div class="modal-actions">
-            <button id="alert-modal-ok" class="cancel-btn">OK</button>
-        </div>
-    </div>
-</div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
