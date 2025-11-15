@@ -1,7 +1,6 @@
 // --- Configuration ---
-// Use your actual Railway API domain here!
-const API_BASE_URL = "https://cybershield-fastapi-production.up.railway.app/";
-fetch(`${API_BASE_URL}/data`);
+// CORRECTED: The base URL now includes the /api prefix to match the FastAPI routing.
+const API_BASE_URL = "https://cybershield-fastapi-production.up.railway.app/api";
 
 // --- View Management ---
 
@@ -46,11 +45,14 @@ function handleSignOut() {
 }
 
 
-// --- Registration Logic (/register) ---
+// --- Registration Logic (/api/register) ---
 
 async function handleRegistration(event) {
     event.preventDefault();
-    const form = event.getElementById('registration-form'); // Use form ID for certainty
+
+    // FIX 2: Correctly reference the form using event.target
+    const form = event.target;
+
     const scope = form.querySelector('input[name="scope"]:checked').value;
     const email = form.querySelector('#reg-email').value;
 
@@ -72,6 +74,7 @@ async function handleRegistration(event) {
     }
 
     try {
+        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/register`, {
             method: 'POST',
             headers: {
@@ -91,18 +94,19 @@ async function handleRegistration(event) {
         }
     } catch (error) {
         console.error('Network error during registration:', error);
-        alert('Could not connect to the backend server. Is the API running on port 8080?');
+        alert('Could not connect to the backend server. Check the API URL and network connection.');
     }
 }
 
 
-// --- Login Logic (/login) ---
+// --- Login Logic (/api/login) ---
 
 async function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('login-email').value;
 
     try {
+        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/login`, {
             method: 'POST',
             headers: {
@@ -130,7 +134,7 @@ async function handleLogin(event) {
 }
 
 
-// --- Scan Logic (URL - /scan) ---
+// --- Scan Logic (URL - /api/scan) ---
 
 async function handleUrlScan(event) {
     event.preventDefault();
@@ -153,6 +157,7 @@ async function handleUrlScan(event) {
     resultDiv.innerHTML = '<p class="text-warning">Scanning... This may take a moment.</p>';
 
     try {
+        // Correct API call: API_BASE_URL already includes /api
         const response = await fetch(`${API_BASE_URL}/scan`, {
             method: 'POST',
             headers: {
