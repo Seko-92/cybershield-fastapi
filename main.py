@@ -1,23 +1,19 @@
 # main.py
 
-from fastapi import FastAPI, Depends, HTTPException, status, UploadFile, File
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import FastAPI, Depends, HTTPException, status
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional, List
 from sqlalchemy.orm import Session
 import logging
 import traceback
+import time  # CRITICAL: Imported for the retry delay
 
 # --- Database Imports ---
 from database import Base, engine, get_db
+# Ensure your models.py is also present in your directory
 import models
 
 # --- Core API Configuration ---
-# You can ignore the Pydantic/FastAPI warnings related to deprecated V1 syntax for now.
-# They are non-fatal.
-
-# NOTE: The dependency functions are omitted here for brevity but should be included 
-# if your original file contains them. Assuming they were in your original main.py.
 
 app = FastAPI()
 
@@ -26,18 +22,16 @@ logging.basicConfig(level=logging.INFO)
 
 
 # --- Pydantic Schemas (Place your actual schemas here) ---
-# Ensure you update these to Pydantic V2 syntax later if needed, but they are fine for now.
 
 class UserBase(BaseModel):
-    # Add your user fields here
     email: EmailStr
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     mobile: Optional[str] = None
 
-    # Example V1 Config (Causes warnings but works)
+    # Example V1 Config (Causes non-fatal warnings)
     class Config:
-        orm_mode = True  # Use from_attributes = True in Pydantic V2
+        orm_mode = True
 
 
 class UserCreateIndividual(UserBase):
@@ -56,44 +50,60 @@ class User(UserBase):
     is_active: bool
 
 
+class ScanReport(BaseModel):
+    # Example scan report fields
+    url: str
+    risk_score: int
+    details: str
+
+
 # --- Database Initialization (The critical fix) ---
 
 @app.on_event("startup")
 def startup_event():
     """
-    Creates database tables if they don't exist.
-    Includes error handling to catch and log database connection failures.
+    Creates database tables if they don't exist, using a retry loop
+    to handle transient database connection failures during cloud startup.
     """
     logging.info("Starting up application...")
 
-    # CRITICAL: Wrap the database initialization in a try/except block
-    try:
-        logging.info("Attempting to connect to PostgreSQL and create tables...")
+    # Retry Configuration
+    MAX_RETRIES = 5
+    RETRY_DELAY = 5  # seconds
 
-        # This is the line that causes the fatal crash if the connection fails
-        Base.metadata.create_all(bind=engine)
+    for attempt in range(MAX_RETRIES):
+        try:
+            logging.info(f"Attempting connection to PostgreSQL (Attempt {attempt + 1}/{MAX_RETRIES})...")
 
-        logging.info("Database tables created successfully!")
+            # CRITICAL LINE: Attempt to create tables (this is where the crash was occurring)
+            Base.metadata.create_all(bind=engine)
 
-    except Exception as e:
-        # If the connection or creation fails, we print the full error
-        logging.error("=" * 60)
-        logging.error("!!! FATAL DATABASE CONNECTION ERROR !!!")
-        logging.error(f"Error Message: {e}")
+            logging.info("Database tables created successfully! Application is ready.")
+            return  # Exit the function successfully if connection is made
 
-        # Print the full stack trace for detailed debugging
-        logging.error("--- Full Traceback ---")
-        logging.error(traceback.format_exc())
-        logging.error("=" * 60)
+        except Exception as e:
+            logging.error(f"DATABASE CONNECTION FAILED: {e}")
 
-        # Re-raise the exception to ensure the service fails visibly in Railway
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database connection failed during startup: {e}"
-        )
+            if attempt < MAX_RETRIES - 1:
+                logging.warning(f"Retrying in {RETRY_DELAY} seconds...")
+                time.sleep(RETRY_DELAY)
+            else:
+                # If all retries fail, print the full error and crash
+                logging.error("=" * 60)
+                logging.error("!!! FATAL DATABASE CONNECTION ERROR AFTER ALL RETRIES !!!")
+                logging.error(f"Last Error: {e}")
+                logging.error("--- Full Traceback ---")
+                logging.error(traceback.format_exc())
+                logging.error("=" * 60)
+
+                # Re-raise the exception to ensure the service fails visibly
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=f"Database connection failed during startup: {e}"
+                )
 
 
-# --- API Endpoints (Place your existing routes here) ---
+# --- API Endpoints (Include your existing routes here) ---
 
 @app.get("/")
 def read_root():
@@ -103,7 +113,11 @@ def read_root():
 @app.post("/register")
 def register_user(user_data: UserCreateIndividual, db: Session = Depends(get_db)):
     # Your registration logic goes here
-    # Use user_data.email, user_data.first_name, etc.
-    return {"message": f"User {user_data.email} registered (DB status will show if successful)"}
+    return {"message": f"User {user_data.email} registration endpoint hit."}
 
-# Add all your other routes (login, scan, get_report, etc.) here...logging
+# Add all your other routes (login, scan, get_report, etc.) here...
+# Example:
+# @app.get("/users/{user_id}", response_model=User)
+# def read_user(user_id: int, db: Session = Depends(get_db)):
+#     # Logic to fetch user from DB
+#     return {"id": user_id, "email": "test@example.com", "is_active": True}
